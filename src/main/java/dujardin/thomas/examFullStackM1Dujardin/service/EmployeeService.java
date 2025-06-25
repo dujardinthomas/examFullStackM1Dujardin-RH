@@ -45,6 +45,8 @@ public class EmployeeService implements CrudService<Employee, Long> {
         existingEmployee.setAddress(entity.getAddress());
         existingEmployee.setPhoneNumber(entity.getPhoneNumber());
         existingEmployee.setComments(entity.getComments());
+        existingEmployee.setConges(entity.getConges());
+        existingEmployee.setAbsences(entity.getAbsences());
         Employee updatedEmployee = employeeRepository.save(existingEmployee);
         return updatedEmployee;
     }

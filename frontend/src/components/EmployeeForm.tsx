@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Save, ArrowLeft } from 'lucide-react';
+import { Save, ArrowLeft, Calendar } from 'lucide-react';
 import { employeeApi } from '../services/api';
 import { Employee } from '../types';
 
@@ -21,10 +21,18 @@ const EmployeeForm = () => {
     phoneNumber: '',
     comments: '',
     email: '',
+    absences: [],
+    conges: [],
   });
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [newAbsence, setNewAbsence] = useState('');
+  const [newLeaveStart, setNewLeaveStart] = useState('');
+  const [newLeaveEnd, setNewLeaveEnd] = useState('');
+
+
+  const [conges, setConges] = useState<{ start: string; end: string }[]>([]);
 
   useEffect(() => {
     if (isEdit && id) {
@@ -49,6 +57,7 @@ const EmployeeForm = () => {
         phoneNumber: employee.phoneNumber || '',
         comments: employee.comments || '',
         email: employee.email || '',
+        absences: employee.absences || [],
       });
     } catch (error) {
       console.error('Erreur lors du chargement de l\'employé:', error);
@@ -57,6 +66,8 @@ const EmployeeForm = () => {
       setLoading(false);
     }
   };
+
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -70,8 +81,15 @@ const EmployeeForm = () => {
       setLoading(true);
       setError(null);
 
+
+      const formattedData = {
+        ...formData,
+        conges
+      }
+
+
       if (isEdit && id) {
-        await employeeApi.update(parseInt(id), formData);
+        await employeeApi.update(parseInt(id), formattedData);
       } else {
         await employeeApi.create(formData);
       }
@@ -90,9 +108,43 @@ const EmployeeForm = () => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setConges(prev => ({
       ...prev,
       [name]: name === 'salary' ? parseFloat(value) || 0 : value,
+    }));
+  };
+
+  const handleAddAbsence = (date: string) => {
+    if (date && !(formData.absences ?? []).includes(date)) {
+      setFormData(prev => ({
+        ...prev,
+        absences: [...(prev.absences ?? []), date],
+      }));
+    }
+  };
+
+  const handleRemoveAbsence = (date: string) => {
+    setFormData(prev => ({
+      ...prev,
+      absences: (prev.absences ?? []).filter(d => d !== date),
+    }));
+  };
+
+  const handleAddLeave = () => {
+    if (newLeaveStart && newLeaveEnd && newLeaveStart <= newLeaveEnd) {
+      setFormData(prev => ({
+        ...prev,
+        conges: [...(prev.conges ?? []), { start: newLeaveStart, end: newLeaveEnd }],
+      }));
+      setNewLeaveStart('');
+      setNewLeaveEnd('');
+    }
+  };
+
+  const handleRemoveLeave = (index: number) => {
+    setFormData(prev => ({
+      ...prev,
+      conges: (prev.conges ?? []).filter((_, i) => i !== index),
     }));
   };
 
@@ -297,6 +349,89 @@ const EmployeeForm = () => {
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
               placeholder="Commentaires sur l'employé..."
             />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Absences (dates)
+            </label>
+            <div className="flex space-x-2 mb-2">
+              <input
+                type="date"
+                id="newAbsence"
+                name="newAbsence"
+                className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                value={newAbsence}
+                onChange={e => setNewAbsence(e.target.value)}
+              />
+              <button
+                type="button"
+                onClick={() => {
+                  handleAddAbsence(newAbsence);
+                  setNewAbsence('');
+                }}
+                className="px-3 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+              >
+                Ajouter
+              </button>
+            </div>
+            <ul>
+              {(formData.absences ?? []).map(date => (
+                <li key={date} className="flex items-center space-x-2">
+                  <span>{date}</span>
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveAbsence(date)}
+                    className="text-red-500 hover:text-red-700"
+                  >
+                    Supprimer
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Congés
+            </label>
+            <div className="flex flex-col md:flex-row md:space-x-2 mb-2">
+              <input
+                type="date"
+                value={newLeaveStart}
+                onChange={e => setNewLeaveStart(e.target.value)}
+                className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent mb-2 md:mb-0"
+                placeholder="Début"
+              />
+              <input
+                type="date"
+                value={newLeaveEnd}
+                onChange={e => setNewLeaveEnd(e.target.value)}
+                className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent mb-2 md:mb-0"
+                placeholder="Fin"
+              />
+              <button
+                type="button"
+                onClick={handleAddLeave}
+                className="px-3 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+              >
+                Ajouter
+              </button>
+            </div>
+            <ul>
+              {(formData.conges ?? []).map((leave, idx) => (
+                <li key={idx} className="flex items-center space-x-2">
+                  <span>{new Date(leave.start).toLocaleDateString('fr-FR')} - {new Date(leave.end).toLocaleDateString('fr-FR')}</span>
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveLeave(idx)}
+                    className="text-red-500 hover:text-red-700"
+                  >
+                    Supprimer
+                  </button>
+                </li>
+              ))}
+            </ul>
           </div>
 
           <div className="flex justify-end space-x-4">

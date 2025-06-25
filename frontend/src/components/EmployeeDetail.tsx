@@ -238,6 +238,38 @@ const EmployeeDetail = () => {
               </div>
             </div>
           )}
+
+          {employee.absences && employee.absences.length > 0 && (
+            <div className="bg-white rounded-lg shadow p-6">
+              <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center">
+                <Calendar className="w-5 h-5 mr-2 text-blue-600" />
+                Absences
+              </h2>
+              <ul className="list-disc pl-5 space-y-1">
+                {employee.absences.map(date => (
+                  <li key={date} className="text-gray-800">
+                    {new Date(date).toLocaleDateString('fr-FR')}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {employee.conges && employee.conges.length > 0 && (
+            <div className="bg-white rounded-lg shadow p-6">
+              <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center">
+                <Calendar className="w-5 h-5 mr-2 text-green-600" />
+                Congés
+              </h2>
+              <ul className="list-disc pl-5 space-y-1">
+                {employee.conges.map((leave, idx) => (
+                  <li key={idx} className="text-gray-800">
+                    {new Date(leave.start).toLocaleDateString('fr-FR')} - {new Date(leave.end).toLocaleDateString('fr-FR')}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
         </div>
 
         

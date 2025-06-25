@@ -25,4 +25,6 @@ export interface Employee {
   phoneNumber?: string;
   comments?: string;
   email: string;
+  conges?: { start: string; end: string }[];
+  absences?: string[];
 }
