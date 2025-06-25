@@ -36,6 +36,15 @@ public class EmployeeService implements CrudService<Employee, Long> {
         if (existingEmployee == null) throw new ObjectNotFoundException("Employee not update because not found with id: " + id);
         existingEmployee.setName(entity.getName());
         existingEmployee.setEmail(entity.getEmail());
+        existingEmployee.setPoste(entity.getPoste());
+        existingEmployee.setSalary(entity.getSalary());
+        existingEmployee.setStartContract(entity.getStartContract());
+        existingEmployee.setEndContract(entity.getEndContract());
+        existingEmployee.setNumberIdentification(entity.getNumberIdentification());
+        existingEmployee.setBirthDate(entity.getBirthDate());
+        existingEmployee.setAddress(entity.getAddress());
+        existingEmployee.setPhoneNumber(entity.getPhoneNumber());
+        existingEmployee.setComments(entity.getComments());
         Employee updatedEmployee = employeeRepository.save(existingEmployee);
         return updatedEmployee;
     }

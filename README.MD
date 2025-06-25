@@ -1,4 +1,4 @@
-# EXAM FULL STACK M1 Thomas DUJARDIN - API Gestion RH Employées et Candidats
+# EXAM FULL STACK M1 Thomas DUJARDIN - API Gestion RH Employées et Candidats + Front REACT
 
 - CRUD Employée
 - CRUD Candidats (applicant)
@@ -11,6 +11,12 @@ docker-compose up -d
 
 ```bash
 mvn spring-boot:run
+```
+
+```bash
+cd frontend
+npm install
+npm start
 ```
 
 ## Commentaires dans la phase de développement
